@@ -50,7 +50,12 @@ lalu mengklasifikasikan potensi risikonya (**Rendah / Sedang / Tinggi**).
 # ===============================
 # Input Tanggal
 # ===============================
-selected_date = st.date_input("Pilih tanggal prediksi", value=datetime.date(2025, 1, 1), min_value=datetime.date(2020, 1, 1))
+selected_date = st.date_input(
+    "Pilih tanggal prediksi",
+    value=datetime.date(2025, 1, 1),
+    min_value=datetime.date(2020, 1, 1),
+    max_value=datetime.date(2070, 12, 31)
+)
 
 if st.button("🔍 Prediksi & Klasifikasi"):
     with st.spinner("Sedang memproses..."):
