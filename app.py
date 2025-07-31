@@ -20,28 +20,46 @@ data['ds'] = pd.to_datetime(data['ds'])
 data['location_encoded'] = data['location'].astype('category').cat.codes
 
 # ===============================
-# App Title
+# Fungsi Klasifikasi Rule-Based
+# ===============================
+def classify_risk_rule_based(depth, ph, tds):
+    if depth > 15 and ph == 7 and tds <= 150:
+        return 2  # Tinggi
+    elif depth > 10 and ph < 7 and tds > 300:
+        return 1  # Sedang
+    else:
+        return 0  # Rendah
+
+def label_risk(value):
+    return {
+        0: "Rendah",
+        1: "Sedang",
+        2: "Tinggi"
+    }.get(value, "Tidak Diketahui")
+
+# ===============================
+# Judul Aplikasi
 # ===============================
 st.title("📊 Prediksi & Klasifikasi Risiko Limbah Radioaktif")
 st.markdown("""
-#### Pilih tanggal prediksi (tahun >= 2020)
+#### Pilih tanggal prediksi (tahun ≥ 2020)
 Aplikasi ini akan memprediksi *depth*, *pH*, dan *TDS* dari data historis,
-lalu mengklasifikasikan potensi risikonya (Rendah / Sedang / Tinggi).
+lalu mengklasifikasikan potensi risikonya (**Rendah / Sedang / Tinggi**).
 """)
 
 # ===============================
-# Date Input
+# Input Tanggal
 # ===============================
 selected_date = st.date_input("Pilih tanggal prediksi", value=datetime.date(2025, 1, 1), min_value=datetime.date(2020, 1, 1))
 
 if st.button("🔍 Prediksi & Klasifikasi"):
     with st.spinner("Sedang memproses..."):
 
-        # Format future dataframe
+        # Format input ke model forecasting
         future = pd.DataFrame({"ds": [pd.to_datetime(selected_date)]})
-        future['location_encoded'] = [data['location_encoded'].iloc[-1]]
+        future['location_encoded'] = [data['location_encoded'].iloc[-1]]  # gunakan lokasi terakhir
 
-        # Forecast per fitur
+        # Forecasting per fitur
         def get_forecast(model, df):
             prediction = model.predict(df)
             return prediction['yhat'].values[0]
@@ -60,12 +78,21 @@ if st.button("🔍 Prediksi & Klasifikasi"):
         st.write(f"**pH**: {pred_ph:.2f}")
         st.write(f"**TDS**: {pred_tds:.2f}")
 
-        # Klasifikasi
+        # Data untuk klasifikasi
         input_df = pd.DataFrame([[pred_depth, pred_ph, pred_tds]], columns=["depth", "ph", "tds"])
-        risk_pred = rf_model.predict(input_df)[0]
 
+        # Klasifikasi
+        rule_based_pred = classify_risk_rule_based(pred_depth, pred_ph, pred_tds)
+        rf_pred = rf_model.predict(input_df)[0]
+
+        # Konversi ke label
+        rule_label = label_risk(rule_based_pred)
+        rf_label = label_risk(rf_pred)
+
+        # Tampilkan hasil klasifikasi
         st.subheader("🧪 Hasil Klasifikasi Risiko:")
-        st.success(f"Prediksi ESG Risk: {risk_pred}")
+        st.write("🔸 **Rule-Based Classification:**", f"**{rule_label}**")
+        st.write("🔹 **Random Forest Classification:**", f"**{rf_label}**")
 
 st.markdown("---")
-st.caption("Model by: Salsa | NUCLIFY")
+st.caption("Model by: Kanita Salsabila Dwi Irmanti | NUCLIFY")
