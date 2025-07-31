@@ -90,9 +90,8 @@ if st.button("🔍 Prediksi & Klasifikasi"):
         rf_label = label_risk(rf_pred)
 
         # Tampilkan hasil klasifikasi
-        st.subheader("🧪 Hasil Klasifikasi Risiko:")
+        st.subheader("🧪 Hasil Klasifikasi Risiko Keamanan Penyimpanan Limbah Radioaktif:")
         st.write("🔸 **Rule-Based Classification:**", f"**{rule_label}**")
-        st.write("🔹 **Random Forest Classification:**", f"**{rf_label}**")
 
 st.markdown("---")
 st.caption("Model by: Kanita Salsabila Dwi Irmanti | NUCLIFY")
